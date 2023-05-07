@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <GridView
+        android:id="@+id/player_board_grid_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:numColumns="10" />
+
+    <GridView
+        android:id="@+id/opponent_board_grid_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:numColumns="10" />
+
+    <TextView
+        android:id="@+id/setup_timer_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Setup Timer" />
+
+    <TextView
+        android:id="@+id/game_timer_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Game Timer" />
+
+    <TextView
+        android:id="@+id/game_status_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Game Status" />
+
+    <Button
+        android:id="@+id/end_turn_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="End Turn" />
+
+</LinearLayout>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Battleship</string>
+    <string name="title_activity_main_menu">MainMenuActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_friends">Friends</string>
+    <string name="title_profile">Profile</string>
+</resources>
