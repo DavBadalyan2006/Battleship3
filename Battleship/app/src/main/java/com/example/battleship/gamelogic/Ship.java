@@ -1,33 +1,30 @@
 package com.example.battleship.gamelogic;
 
 public class Ship {
-    private int size;
-    private int shipID;
-    private int hit;
+    private int length;
+    private boolean[] hits;
 
-    public Ship(int size, int shipID) {
-        this.size = size;
-        this.shipID = shipID;
-        this.hit = 0;
+    public Ship(int length) {
+        this.length = length;
+        hits = new boolean[length];
     }
 
-    public int getSize() {
-        return size;
-    }
-
-    public int getShipID() {
-        return shipID;
-    }
-
-    public int getHit() {
-        return hit;
-    }
-
-    public void incrementHit() {
-        hit++;
+    public int getLength() {
+        return length;
     }
 
     public boolean isSunk() {
-        return hit == size;
+        for (boolean hit : hits) {
+            if (!hit) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void hit(int position) {
+        if (position >= 0 && position < length) {
+            hits[position] = true;
+        }
     }
 }

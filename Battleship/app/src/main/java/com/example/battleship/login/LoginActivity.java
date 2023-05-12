@@ -25,18 +25,18 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private Button loginButton;
     private Button registerButton;
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseFirestore firebaseFirestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
 
-        if (mAuth.getCurrentUser() != null) {
+        if (firebaseAuth.getCurrentUser() != null) {
             startMainMenuActivity();
             finish();
         }
@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signInWithEmailAndPassword(String email, String password) {
-        mAuth.signInWithEmailAndPassword(email, password)
+        firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signInWithUsername(final String username, final String password) {
-        db.collection("users")
+        firebaseFirestore.collection("users")
                 .whereEqualTo("username", username)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

@@ -31,16 +31,16 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button registerButton;
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseFirestore firebaseFirestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
 
         usernameEditText = findViewById(R.id.usernameEditText);
         emailEditText = findViewById(R.id.emailEditText);
@@ -85,7 +85,7 @@ public class RegisterActivity extends AppCompatActivity {
 
 
     private void checkUsernameAvailability(String username, final OnUsernameAvailabilityCheckedListener listener) {
-        db.collection("users")
+        firebaseFirestore.collection("users")
                 .whereEqualTo("username", username)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -107,12 +107,12 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void registerUser(final String username, String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password)
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            FirebaseUser user = firebaseAuth.getCurrentUser();
                             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                     .setDisplayName(username).build();
                             user.updateProfile(profileUpdates);
@@ -127,17 +127,14 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void createUserInFirestore(String username) {
-        usernameEditText = findViewById(R.id.usernameEditText);
-        emailEditText = findViewById(R.id.emailEditText);
-        passwordEditText = findViewById(R.id.passwordEditText);
-        String uid = mAuth.getCurrentUser().getUid();
+        String uid = firebaseAuth.getCurrentUser().getUid();
         Map<String, Object> user = new HashMap<>();
         user.put("uid", uid);
         user.put("username", usernameEditText.getText().toString());
         user.put("email", emailEditText.getText().toString());
         user.put("password", passwordEditText.getText().toString());
 
-        db.collection("users").document(uid).set(user);
+        firebaseFirestore.collection("users").document(uid).set(user);
     }
 
     interface OnUsernameAvailabilityCheckedListener {

@@ -32,14 +32,17 @@ public class MatchmakingManager {
                     String roomId = snapshot.getKey();
                     String opponentId = snapshot.getValue(String.class);
 
+                    // If the room is occupied by someone else
                     if (!opponentId.equals(mUserId)) {
-                        mMatchmakingRef.child(roomId).removeValue();
+                        // Assign user to the room and remove it from available matchmaking rooms
+                        mMatchmakingRef.child(roomId).setValue(mUserId);
                         mMatchmakingRef.removeEventListener(this);
                         callback.onMatchFound(roomId);
                         return;
                     }
                 }
 
+                // If no available room found, create a new one
                 String roomId = mMatchmakingRef.push().getKey();
                 mMatchmakingRef.child(roomId).setValue(mUserId);
             }
@@ -50,8 +53,9 @@ public class MatchmakingManager {
             }
         };
 
-        mMatchmakingRef.addValueEventListener(mMatchmakingListener);
+        mMatchmakingRef.addListenerForSingleValueEvent(mMatchmakingListener);
     }
+
 
     public void cancelMatchmaking() {
         if (mMatchmakingListener != null) {
