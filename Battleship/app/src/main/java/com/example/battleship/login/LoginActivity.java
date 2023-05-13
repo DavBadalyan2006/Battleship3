@@ -1,7 +1,5 @@
 package com.example.battleship.login;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,24 +7,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.battleship.MainMenuActivity;
 import com.example.battleship.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
-
-    private EditText usernameOrEmailEditText;
+    private FirebaseAuth firebaseAuth;
+    private EditText emailEditText;
     private EditText passwordEditText;
     private Button loginButton;
     private Button registerButton;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseFirestore firebaseFirestore;
+    private Button resetPasswordButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,91 +32,61 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        firebaseFirestore = FirebaseFirestore.getInstance();
 
-        if (firebaseAuth.getCurrentUser() != null) {
-            startMainMenuActivity();
-            finish();
-        }
-
-        usernameOrEmailEditText = findViewById(R.id.usernameOrEmailEditText);
+        emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
         registerButton = findViewById(R.id.registerButton);
+        resetPasswordButton = findViewById(R.id.resetPasswordButton);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String usernameOrEmail = usernameOrEmailEditText.getText().toString().trim();
-                String password = passwordEditText.getText().toString().trim();
+                String email = emailEditText.getText().toString();
+                String password = passwordEditText.getText().toString();
 
-                if (!usernameOrEmail.isEmpty() && !password.isEmpty()) {
-                    if (isEmail(usernameOrEmail)) {
-                        signInWithEmailAndPassword(usernameOrEmail, password);
-                    } else {
-                        signInWithUsername(usernameOrEmail, password);
-                    }
-                }
+                firebaseAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    FirebaseUser user = firebaseAuth.getCurrentUser();
+                                    updateUI(user);
+                                } else {
+                                    Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                            Toast.LENGTH_SHORT).show();
+                                    updateUI(null);
+                                }
+                            }
+                        });
             }
         });
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startRegisterActivity();
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        resetPasswordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
+                startActivity(intent);
             }
         });
     }
 
-    private void signInWithEmailAndPassword(String email, String password) {
-        firebaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            startMainMenuActivity();
-                        } else {
-                            Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    private void signInWithUsername(final String username, final String password) {
-        firebaseFirestore.collection("users")
-                .whereEqualTo("username", username)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (!task.getResult().isEmpty()) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    String email = document.getString("email");
-                                    signInWithEmailAndPassword(email, password);
-                                }
-                            } else {
-                                Toast.makeText(LoginActivity.this, "User not found.", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Toast.makeText(LoginActivity.this, "Error getting user.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    private boolean isEmail(String input) {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches();
-    }
-
-    private void startMainMenuActivity() {
-        Intent intent = new Intent(LoginActivity.this, MainMenuActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    private void startRegisterActivity() {
-        Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-        startActivity(intent);
+    private void updateUI(FirebaseUser user) {
+        if (user != null) {
+            Intent intent = new Intent(LoginActivity.this, MainMenuActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            Toast.makeText(LoginActivity.this, "Login failed. Please check your email and password.",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 }

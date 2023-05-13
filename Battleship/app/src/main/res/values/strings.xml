@@ -4,6 +4,7 @@
     <string name="title_home">Home</string>
     <string name="title_friends">Friends</string>
     <string name="title_profile">Profile</string>
-    <string name="username_or_email">Username Or Email</string>
+    <string name="email">Email</string>
     <string name="password">Password</string>
+    <string name="welcome_back">Welcome Back</string>
 </resources>
